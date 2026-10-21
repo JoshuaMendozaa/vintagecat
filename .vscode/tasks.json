@@ -1,0 +1,22 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Vintagecat: watch checkpoints",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": ["tools/checkpoints.py", "--watch"],
+      "options": {"cwd": "${workspaceFolder}"},
+      "problemMatcher": [],
+      "presentation": {"reveal": "always", "panel": "dedicated"}
+    },
+    {
+      "label": "Vintagecat: check CI locally",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": ["tools/checkpoints.py", "--ci"],
+      "options": {"cwd": "${workspaceFolder}"},
+      "problemMatcher": []
+    }
+  ]
+}

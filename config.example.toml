@@ -1,0 +1,7 @@
+# Copy to config.local.toml; never commit the local file.
+ollama_url = "http://127.0.0.1:11434"
+model = "qwen3-vl:8b"
+# Optional. Leave empty for manual comparable entry.
+compsapi_key = ""
+# A conservative application-side monthly cap; failures reserve a request too.
+monthly_search_limit = 80

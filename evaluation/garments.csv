@@ -1,0 +1,1 @@
+item_id,photo_set,model_tag,model_digest,prompt_version,expected_brand,predicted_brand,expected_model,predicted_model,expected_size,predicted_size,unsupported_claims,reviewed_comp_count,relevant_comp_count,elapsed_seconds,human_review_seconds,provider_requests,estimated_api_cost_usd,notes
