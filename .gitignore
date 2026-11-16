@@ -18,3 +18,4 @@ __pycache__/
 learning/NEXT_STEP.md
 learning/NEXT_STEP.tmp
 learning/.checkpoint-progress.json
+.env
