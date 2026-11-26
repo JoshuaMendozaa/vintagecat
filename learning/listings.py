@@ -12,10 +12,14 @@ class ListingDrafts(BaseModel):
     facebook: MarketplaceListing
     needs_review: list[str]
 
+class ListingEdits(BaseModel):
+    ebay: MarketplaceListing
+    depop: MarketplaceListing
+
 def generate_listing_drafts(reviewed_details: dict, analysis: dict | None) -> ListingDrafts:
     instructions = """
     You write clothing resale listing drafts for eBay, Depop, and Facebook Marketplace.
-    Create a separate title and description for each marketplace that is search engine optimized to be the most relevant and compelling listing possible.
+    Create a separate title and description for each marketplace that is search engine optimized to be at the top of every search result.
 
     Use reviewed_details as the primary source of listing facts.
     Use analysis to identify uncertainties or conflicts.

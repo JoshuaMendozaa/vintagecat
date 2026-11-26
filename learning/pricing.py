@@ -34,3 +34,11 @@ def summarize_prices(comps: list[SoldComparable], currency: str) -> PriceSummary
         comp_count=len(prices),
         median_sold_price_cents=median(prices) if prices else None
     )
+
+def build_comp_query(title: str, brand: str | None) -> str:
+    clean_title = title.strip()
+    clean_brand = (brand or "").strip()
+
+    if not clean_brand or clean_brand.casefold() in clean_title.casefold():
+        return clean_title
+    return f"{clean_brand} {clean_title}"

@@ -1,90 +1,771 @@
 <!DOCTYPE html>
 <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>Vintagecat | My closet</title>
+        <style>
+            :root {
+                --ink: #26213a;
+                --plum: #473366;
+                --pink: #ffb5d8;
+                --paper: #fffbf4;
+                --line: #a89db6;
+            }
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Vintagecat</title>
-</head>
+            * {
+                box-sizing: border-box;
+            }
 
-<script>
-    const uploadForm = document.getElementById("upload-form");
-    const inventory = document.getElementById("inventory");
-    const loadButton = document.getElementById("load-items");
-    loadButton.addEventListener("click", loadItems);
+            [hidden] {
+                display: none !important;
+            }
 
-    uploadForm.addEventListener("submit", async (event) => {
-        event.preventDefault();
+            body {
+                margin: 0;
+                color: var(--ink);
+                font: 16px/1.5 Verdana, Arial, sans-serif;
+                background-color: #ede6ef;
+                background-image: linear-gradient(90deg, #a594b21a 1px, transparent 1px), linear-gradient(#a594b21a 1px, transparent 1px);
+                background-size: 16px 16px;
+            }
 
-        const photos = document.getElementById("garment-photos").files;
-        const uploadStatus = document.getElementById("upload-status");
+            header {
+                background: linear-gradient(115deg, #242238, #483152 75%, #252136);
+                color: white;
+                border-bottom: 6px double #ddb2d0;
+            }
 
-        if (photos.length === 0) {
-            uploadStatus.textContent = "Choose at least one photo.";
-            return;
-        }
+            .mast, main, footer {
+                width: min(1050px, 92%);
+                margin: auto;
+            }
 
-        const response = await fetch("/items", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({title: "Untitled garment"}),
-        });
+            .mast, .bar, .actions {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+            }
 
-        if (!response.ok) {
-            uploadStatus.textContent = "Could not create garment.";
-            return;
-        }
+            .mast {
+                justify-content: space-between;
+                padding: 28px 0;
+            }
 
-        const item = await response.json();
+            .wordmark small {
+                color: #ffcae2;
+            }
 
-        for (const photo of photos) {
-            const formData = new FormData();
-            formData.append("photo", photo);
+            small, footer, .patch {
+                font: 700 .74rem/1.5 monospace;
+                letter-spacing: .1em;
+            }
 
-            const photoResponse = await fetch(`/items/${item.id}/photos`, {
-                method: "POST",
-                body: formData,
-            });
+            h1 {
+                font: italic bold clamp(3rem, 8vw, 6rem)/1 Georgia, serif;
+                letter-spacing: -.07em;
+                margin: 0;
+                color: #fff7eb;
+                text-shadow: 2px 3px #ae658a;
+            }
 
-            if (!photoResponse.ok) {
-                uploadStatus.textContent = "Could not upload photo.";
+            h1 span {
+                color: var(--pink);
+                font-size: .55em;
+                vertical-align: top;
+            }
+
+            .patch {
+                background: #cbe9bb;
+                color: var(--ink);
+                text-align: center;
+                padding: 7px 12px;
+                outline: 1px dashed var(--ink);
+                outline-offset: -5px;
+                transform: rotate(5deg);
+            }
+
+            .patch b {
+                font-size: 1.7rem;
+            }
+
+            main {
+                display: grid;
+                grid-template-columns: minmax(180px, 1fr) minmax(0, 2.8fr);
+                gap: 24px;
+                align-items: start;
+                margin: 32px auto;
+            }
+
+            .desk, aside {
+                min-width: 0;
+            }
+
+            .profile, section {
+                background: var(--paper);
+                border: 1px solid var(--ink);
+                box-shadow: 4px 4px 0 #beb0c7;
+            }
+
+            .profile {
+                padding: 20px;
+                border-top: 8px solid var(--pink);
+            }
+
+            .profile h2, h3 {
+                font: bold 2rem/1.1 Georgia, serif;
+                margin: .35em 0;
+            }
+
+            .profile p, .pad>p:first-of-type {
+                max-width: 58ch;
+            }
+
+            p {
+                margin: .6em 0 1em;
+            }
+
+            .bar {
+                border-bottom: 1px solid var(--ink);
+                background: #e6dafa;
+                padding: 9px 18px;
+            }
+
+            .bar h2 {
+                font-size: 1rem;
+                margin: 0;
+            }
+
+            .bar span {
+                font: bold .8rem monospace;
+                background: var(--plum);
+                color: white;
+                padding: 4px 7px;
+            }
+
+            .pad {
+                padding: clamp(16px, 3vw, 30px);
+            }
+
+            .pad small {
+                color: #795166;
+            }
+
+            .booth {
+                border: 2px dashed var(--line);
+                background: #f6eef5;
+                padding: 18px;
+                margin: 16px 0;
+            }
+
+            .booth label, .field, legend {
+                font-weight: bold;
+            }
+
+            #photo-tip {
+                font-size: .85rem;
+            }
+
+            button, input::file-selector-button {
+                font: inherit;
+                font-weight: bold;
+                cursor: pointer;
+                background: var(--plum);
+                color: white;
+                border: 1px solid var(--ink);
+                padding: 10px 14px;
+                border-radius: 3px;
+            }
+
+            button:hover, input::file-selector-button:hover {
+                background: #634878;
+            }
+
+            input[type=file] {
+                max-width: 100%;
+                font: inherit;
+                font-size: .87rem;
+            }
+
+            input::file-selector-button {
+                background: #ffdeeb;
+                color: var(--ink);
+                margin-right: 10px;
+            }
+
+            input::file-selector-button:hover {
+                color: white;
+            }
+
+            button:focus-visible, input:focus-visible, textarea:focus-visible {
+                outline: 3px solid #005cbc;
+                outline-offset: 3px;
+            }
+
+            .field {
+                display: block;
+                font-size: .9rem;
+                margin: 12px 0;
+            }
+
+            .field input, .field textarea {
+                display: block;
+                width: 100%;
+                margin-top: 4px;
+                border: 1px solid #87768e;
+                padding: 10px;
+                background: white;
+                color: var(--ink);
+                font: inherit;
+                font-weight: normal;
+            }
+
+            .field textarea {
+                resize: vertical;
+            }
+
+            .actions {
+                flex-wrap: wrap;
+            }
+
+            .fields, .markets {
+                display: grid;
+                gap: 12px;
+            }
+
+            .fields {
+                grid-template-columns: 2fr 1fr 1fr;
+            }
+
+            .markets {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            fieldset {
+                min-width: 0;
+                background: #faf4f8;
+                border: 1px solid var(--line);
+            }
+
+            legend {
+                color: var(--plum);
+            }
+
+            section+section, #analysis-review {
+                margin-top: 22px;
+            }
+
+            #inventory {
+                padding: 0;
+                list-style: none;
+                margin-bottom: 0;
+                max-height: 55vh;
+                overflow: auto;
+            }
+
+            #inventory li+li {
+                border-top: 1px dotted var(--line);
+            }
+
+            #inventory button {
+                width: 100%;
+                background: transparent;
+                color: var(--plum);
+                border: none;
+                text-align: left;
+                text-decoration: underline;
+                overflow-wrap: anywhere;
+            }
+
+            #review-photos {
+                display: flex;
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+
+            #review-photos img {
+                max-width: 100%;
+                background: white;
+                border: 4px solid white;
+                box-shadow: 0 1px 3px #998;
+            }
+
+            p:empty, ul:empty {
+                margin: 0;
+            }
+
+            p[role]:not(:empty), #review-uncertainties:not(:empty) {
+                padding: 10px;
+                background: #fff0d5;
+                border-left: 4px solid #9e622c;
+            }
+
+            footer {
+                border-top: 1px dashed var(--line);
+                padding: 16px 0;
+                color: var(--plum);
+            }
+
+            @media (max-width: 700px) {
+                main {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 18px;
+                }
+
+                .desk, aside {
+                    width: 100%;
+                }
+
+                .desk {
+                    order: -1;
+                }
+
+                .markets, .fields {
+                    grid-template-columns: 1fr;
+                }
+
+                .fields {
+                    gap: 0;
+                }
+
+                .patch {
+                    font-size: .62rem;
+                }
+
+                .mast {
+                    padding: 18px 0;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <div class="mast">
+                <div class="wordmark">
+                    <small>★ PERSONAL CLOSET NETWORK</small>
+                    <h1>Vintagecat<span>✧</span></h1>
+                </div>
+                <div class="patch" aria-hidden="true">
+                    <b>=^·^=</b>
+                    <br>
+                    RACK CAT CLUB
+                </div>
+            </div>
+        </header>
+        <main>
+            <aside>
+                <div class="profile">
+                    <small>CLOSET PROFILE / 001</small>
+                    <h2>My clothes rack</h2>
+                    <p>Reopen a garment to see its photos, notes and saved drafts.</p>
+                    <button id="load-items">Load inventory</button>
+                    <ul id="inventory"></ul>
+                </div>
+            </aside>
+            <div class="desk">
+                <section>
+                    <div class="bar">
+                        <span>01</span>
+                        <h2>Add a garment</h2>
+                    </div>
+                    <div class="pad">
+                        <small>PHOTO BOOTH</small>
+                        <h3>New thrift find?</h3>
+                        <p>Upload one garment at a time. Vintagecat reads the photos and suggests details for you to review.</p>
+                        <form id="upload-form">
+                            <div class="booth">
+                                <label for="garment-photos">Choose garment photos</label>
+                                <p id="photo-tip">Try a front view, back view, tag and any wear. Up to 5 MB per image.</p>
+                                <input
+                                    id="garment-photos"
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    required
+                                    aria-describedby="photo-tip"
+                                >
+                            </div>
+                            <button type="submit">Upload &amp; analyze →</button>
+                        </form>
+                        <p id="upload-status" role="status"></p>
+                    </div>
+                </section>
+                <div id="analysis-review" hidden>
+                    <section>
+                        <div class="bar">
+                            <span>02</span>
+                            <h2>Review garment details</h2>
+                        </div>
+                        <div class="pad">
+                            <p>Check the suggested details against your garment. Save your changes before generating drafts.</p>
+                            <div id="review-photos"></div>
+                            <h3>Comparable sales</h3>
+                            <p id="price-summary" role="status"></p>
+                            <label class="field" for="review-title">
+                                Garment title
+                                <input id="review-title" maxlength="120">
+                            </label>
+                            <div class="fields">
+                                <label class="field" for="review-brand">
+                                    Brand
+                                    <input id="review-brand">
+                                </label>
+                                <label class="field" for="review-size">
+                                    Size
+                                    <input id="review-size">
+                                </label>
+                                <label class="field" for="review-color">
+                                    Color
+                                    <input id="review-color">
+                                </label>
+                            </div>
+                            <label class="field" for="review-condition">
+                                Visible condition notes
+                                <textarea id="review-condition" rows="4"></textarea>
+                            </label>
+                            <p id="review-uncertainties"></p>
+                            <div class="actions">
+                                <button id="save-review" type="button">Save reviewed details</button>
+                                <button id="generate-drafts" type="button">Generate listing drafts</button>
+                            </div>
+                            <p id="review-status" role="status"></p>
+                        </div>
+                    </section>
+                    <section id="listing-drafts-review" hidden>
+                        <div class="bar">
+                            <span>03</span>
+                            <h2>Marketplace drafts</h2>
+                        </div>
+                        <div class="pad">
+                            <p>Edit each version here. Saving keeps both drafts in Vintagecat.</p>
+                            <div class="markets">
+                                <fieldset>
+                                    <legend>eBay</legend>
+                                    <label class="field" for="ebay-title">
+                                        Listing title
+                                        <input id="ebay-title">
+                                    </label>
+                                    <label class="field" for="ebay-description">
+                                        Description
+                                        <textarea id="ebay-description" rows="4"></textarea>
+                                    </label>
+                                </fieldset>
+                                <fieldset>
+                                    <legend>Depop</legend>
+                                    <label class="field" for="depop-title">
+                                        Listing title
+                                        <input id="depop-title">
+                                    </label>
+                                    <label class="field" for="depop-description">
+                                        Description
+                                        <textarea id="depop-description" rows="4"></textarea>
+                                    </label>
+                                </fieldset>
+                            </div>
+                            <p id="listing-drafts-warnings" role="alert"></p>
+                            <button id="save-listing-edits" type="button">Save listing drafts</button>
+                        </div>
+                    </section>
+                </div>
+                <p id="create-status" role="status"></p>
+            </div>
+        </main>
+        <footer>VINTAGECAT &nbsp; ✦ &nbsp; A PERSONAL GARMENT ARCHIVE</footer>
+        <script>
+        const uploadForm = document.getElementById("upload-form");
+        const inventory = document.getElementById("inventory");
+        const loadButton = document.getElementById("load-items");
+        loadButton.addEventListener("click", loadItems);
+        let reviewingItemId = null;
+        const saveReviewButton = document.getElementById("save-review");
+        const generateDraftsButton = document.getElementById("generate-drafts");
+        const reviewStatus = document.getElementById("review-status");
+        const saveListingEditsButton = document.getElementById("save-listing-edits");
+
+        saveListingEditsButton.addEventListener("click", async () => {
+            if (reviewingItemId === null) {
+                reviewStatus.textContent = "Choose a garment to save edits for.";
                 return;
             }
-        }
+            const listingEdits = readListingEdits();
+            
+            const response = await fetch(`/items/${reviewingItemId}/listing-drafts`, {
+                method: "PUT",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(listingEdits)
+            });
 
-        uploadStatus.textContent = "Photos uploaded.";
-        await loadItems();
-    });
+            if (!response.ok) {
+                reviewStatus.textContent = "Could not save listing edits.";
+                return;
+            }
 
-    async function loadItems() {
-        const response = await fetch("/items");
-
-        if (!response.ok) {
-            inventory.textContent = "Could not load inventory.";
-            return;
-        }
-
-        const items = await response.json();
-        inventory.replaceChildren();
-
-        items.forEach(item => {
-            const listItem = document.createElement("li");
-            listItem.textContent = item.title;
-            inventory.appendChild(listItem);
+            reviewStatus.textContent = "Listing edits saved.";
+            
         });
-    }
-</script>
 
-<body>
-    <h1>Vintagecat</h1>
-    <form id="upload-form">
-        <label for="garment-photos">Garment photos, tags, and condition details</label>
-        <input id="garment-photos" type="file" accept="image/*" multiple required>
-        <button type="submit">Upload garment</button>
-    </form>
-    <p id="upload-status" role="status"></p>
-    <p id="create-status" role="status"></p>
-    <button id="load-items">Load inventory</button>
-    <ul id="inventory"></ul>
+        saveReviewButton.addEventListener("click", async () => {
+            if (reviewingItemId === null) {
+                reviewStatus.textContent = "Choose a garment to review first.";
+                return;
+            }
+
+            reviewedData = {
+                title: document.getElementById("review-title").value.trim(),
+                brand: document.getElementById("review-brand").value.trim() || null,
+                size: document.getElementById("review-size").value.trim() || null,
+                color: document.getElementById("review-color").value.trim() || null,
+                condition_notes: document.getElementById("review-condition").value
+                .split("\n")
+                .map((line) => line.trim())
+                .filter((line) => line)
+            }
+
+            if (!reviewedData.title) {
+                reviewStatus.textContent = "Title is required.";
+                return;
+            }
+
+            const saveResponse = await fetch(`/items/${reviewingItemId}/review`, {
+                method: "PUT",
+                headers: {"Content-Type": "application/json",
+                },
+                body: JSON.stringify(reviewedData),
+            });
+
+            if (!saveResponse.ok) {
+                reviewStatus.textContent = "Could not save reviewed details.";
+                return;
+            }
+
+            reviewStatus.textContent = "Reviewed details saved.";
+            showListingDrafts(null)
+            await loadItems();
+
+        })
+
+        generateDraftsButton.addEventListener("click", async () => {
+            if (reviewingItemId === null) {
+                reviewStatus.textContent = "Choose a garment to generate drafts.";
+                return;
+            }
+
+            reviewStatus.textContent = "Generating listing drafts...";
+
+            const draftsResponse = await fetch(`/items/${reviewingItemId}/listing-drafts`, {
+                method: "POST",
+            });
+            if (!draftsResponse.ok) {
+                reviewStatus.textContent = "Could not generate listing drafts.";
+                return;
+            }
+            const drafts = await draftsResponse.json();
+            showListingDrafts(drafts);
+            reviewStatus.textContent = "Listing drafts generated.";
+        });
+
+        uploadForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const photos = document.getElementById("garment-photos").files;
+            const uploadStatus = document.getElementById("upload-status");
+
+            if (photos.length === 0) {
+                uploadStatus.textContent = "Choose at least one photo.";
+                return;
+            }
+
+            const response = await fetch("/items", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({title: "Untitled garment"}),
+            });
+
+            if (!response.ok) {
+                uploadStatus.textContent = "Could not create garment.";
+                return;
+            }
+
+            const item = await response.json();
+
+            const uploadedPhotos = [];
+
+            for (const photo of photos) {
+                const formData = new FormData();
+                formData.append("photo", photo);
+
+                const photoResponse = await fetch(`/items/${item.id}/photos`, {
+                    method: "POST",
+                    body: formData,
+                });
+
+                if (!photoResponse.ok) {
+                    uploadStatus.textContent = "Could not upload photo.";
+                    return;
+                }
+                const savedPhotos = await photoResponse.json();
+                uploadedPhotos.push(savedPhotos);
+            }
+
+            uploadStatus.textContent = "Photos uploaded.";
+            uploadStatus.textContent = "Analyzing garment...";
+            const analysisResponse = await fetch(`/items/${item.id}/analyze`, {
+                method: "POST",
+            });
+            if (!analysisResponse.ok) {
+                uploadStatus.textContent = "Could not analyze garment.";
+                return;
+            }
+            const result = await analysisResponse.json();
+            reviewingItemId = item.id;
+            showListingDrafts(null);
+            showItemPhotos(item.id, result.title, uploadedPhotos);
+            document.getElementById("review-brand").value = result.brand ?? "";
+            document.getElementById("review-size").value = result.size ?? "";
+            document.getElementById("review-color").value = result.color ?? "";
+            document.getElementById("review-condition").value = (result.condition_notes ?? []).join("\n");
+            document.getElementById("review-uncertainties").textContent = result.needs_review.join(", ") ?? "";
+            document.getElementById("review-title").value = result.title;
+            document.getElementById("analysis-review").hidden = false;
+            uploadStatus.textContent = "Analysis complete.";
+
+        });
+
+        async function loadItems() {
+            const response = await fetch("/items");
+
+            if (!response.ok) {
+                inventory.textContent = "Could not load inventory.";
+                return;
+            }
+
+            const items = await response.json();
+            inventory.replaceChildren();
+
+            items.forEach(item => {
+                const listItem = document.createElement("li");
+                const button = document.createElement("button");
+
+                button.type = "button";
+                button.textContent = item.title;
+                button.addEventListener("click", () => openItem(item.id));
+
+                listItem.appendChild(button);
+                inventory.appendChild(listItem);
+            });
+
+        }
+
+        function showListingDrafts(drafts) {
+            const draftsSection = document.getElementById("listing-drafts-review");
+
+            if (drafts == null) {
+                draftsSection.hidden = true;
+                return;
+        }
+            document.getElementById("ebay-title").value = drafts.ebay.title;
+            document.getElementById("ebay-description").value = drafts.ebay.description;
+            document.getElementById("depop-title").value = drafts.depop.title;
+            document.getElementById("depop-description").value = drafts.depop.description;
+            document.getElementById("listing-drafts-warnings").textContent = drafts.needs_review.join(", ");
+            draftsSection.hidden = false;
+        }
+
+        function readListingEdits() {
+            const ebayTitle = document.getElementById("ebay-title").value;
+            const ebayDescription = document.getElementById("ebay-description").value;
+            const depopTitle = document.getElementById("depop-title").value;
+            const depopDescription = document.getElementById("depop-description").value;
+
+            return {
+                ebay: { title: ebayTitle, description: ebayDescription },
+                depop: { title: depopTitle, description: depopDescription }
+            };
+        }
+
+        function showItemPhotos(itemId, title, photos) {
+            const photoContainer = document.getElementById("review-photos");
+            photoContainer.replaceChildren();
+
+            photos.forEach(photo => {
+                const image = document.createElement("img");
+
+                image.src = `/items/${itemId}/photos/${photo.id}`;
+                image.alt = `photo of ${title}`;
+                image.style.width = "200px";
+                image.style.height = "200px";
+                image.style.objectFit = "contain";
+
+                photoContainer.appendChild(image);
+            });
+        }
+
+        function showPriceSummary(summary) {
+            const priceSummary = document.getElementById("price-summary");
+            const amount = (summary.median_sold_price_cents/100).toFixed(2);
+            const salesLabel = summary.comp_count === 1 ? "sale" : "sales";
+            if (summary.comp_count === 0) {
+                priceSummary.textContent = `No saved sales in ${summary.currency} yet`;
+            } else {
+                priceSummary.textContent = `Median sold price: ${(summary.median_sold_price_cents/100).toFixed(2)} - ${summary.comp_count} ${salesLabel}`;
+            } 
+        }
+
+        async function openItem(itemID) {
+            const reviewStatus = document.getElementById("review-status");
+            const response = await fetch(`/items/${itemID}`);
+
+            if (!response.ok)   {
+                document.getElementById("analysis-review").hidden = false;
+                reviewStatus.textContent = "Could not load item.";
+                return;
+            }
+
+            const item = await response.json();
+            reviewingItemId = item.id;
+            showItemPhotos(item.id, item.title, item.photos);
+
+            
+            
+
+            document.getElementById("review-title").value = item.title;
+            document.getElementById("review-brand").value = item.brand ?? "";
+            document.getElementById("review-size").value = item.size ?? "";
+            document.getElementById("review-color").value = item.color ?? "";
+            document.getElementById("review-condition").value = item.condition_notes.join("\n");
+            
+            showListingDrafts(item.listing_drafts);
+
+            const uncertainties = item.analysis?.needs_review ?? [];
+
+            document.getElementById("review-uncertainties").textContent =
+                uncertainties.length > 0
+                    ? `AI flagged for review: ${uncertainties.join(", ")}`
+                    : "";
+
+            reviewStatus.textContent = "";
+            document.getElementById("analysis-review").hidden = false;
+
+            const priceStatus = document.getElementById("price-summary");
+            priceStatus.textContent = "Loading comparable sales...";
+            try {
+                const priceResponse = await fetch(`/items/${item.id}/price-summary`);
+                if(!priceResponse.ok) {
+                    throw new Error("Failed to load price summary");
+                }
+                const summary = await priceResponse.json();
+                if (reviewingItemId === item.id) {
+                    showPriceSummary(summary);
+                } 
+            }   catch (error) {
+                if  (reviewingItemId === item.id) {
+                    priceStatus.textContent = "Error loading price summary";
+                }
+            }
+
+        }
+
+    </script>
 </body>
 </html>
